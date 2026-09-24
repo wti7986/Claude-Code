@@ -1,0 +1,109 @@
+#jev-typo-panel {
+  position: fixed;
+  z-index: 2147483647;
+  bottom: 16px;
+  right: 16px;
+  width: 340px;
+  max-height: 60vh;
+  overflow-y: auto;
+  background: #ffffff;
+  border: 1px solid #d7d7db;
+  border-radius: 10px;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.18);
+  font-family: system-ui, -apple-system, "Hiragino Kaku Gothic ProN", sans-serif;
+  font-size: 13px;
+  color: #1a1a1a;
+  display: none;
+}
+
+#jev-typo-panel.jev-visible {
+  display: block;
+}
+
+#jev-typo-panel .jev-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  border-bottom: 1px solid #eee;
+  font-weight: 600;
+  background: #fafafa;
+  border-radius: 10px 10px 0 0;
+}
+
+#jev-typo-panel .jev-header .jev-close {
+  cursor: pointer;
+  color: #888;
+  font-size: 16px;
+  line-height: 1;
+}
+
+#jev-typo-panel .jev-status {
+  padding: 10px 12px;
+  color: #666;
+}
+
+#jev-typo-panel .jev-item {
+  padding: 10px 12px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+#jev-typo-panel .jev-item:last-child {
+  border-bottom: none;
+}
+
+#jev-typo-panel .jev-original {
+  color: #333;
+  margin-bottom: 4px;
+  line-height: 1.5;
+}
+
+#jev-typo-panel .jev-original mark {
+  background: #ffe1a8;
+  border-radius: 2px;
+  padding: 0 1px;
+}
+
+#jev-typo-panel .jev-suggested {
+  color: #1a6e3c;
+  margin-bottom: 4px;
+  line-height: 1.5;
+}
+
+#jev-typo-panel .jev-reason {
+  color: #777;
+  font-size: 12px;
+  margin-bottom: 6px;
+}
+
+#jev-typo-panel .jev-apply {
+  font-size: 12px;
+  padding: 4px 10px;
+  border: 1px solid #1a6e3c;
+  color: #1a6e3c;
+  background: #fff;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+#jev-typo-panel .jev-apply:hover {
+  background: #eaf7ee;
+}
+
+#jev-typo-panel .jev-applied {
+  color: #999;
+  font-size: 12px;
+}
+
+.jev-typo-badge {
+  position: fixed;
+  z-index: 2147483647;
+  background: #d9822b;
+  color: #fff;
+  border-radius: 999px;
+  padding: 2px 8px;
+  font-size: 11px;
+  font-family: system-ui, sans-serif;
+  pointer-events: none;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
