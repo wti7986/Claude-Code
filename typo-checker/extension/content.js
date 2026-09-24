@@ -101,24 +101,26 @@
   }
 
   function renderResults(el, results) {
-    const flagged = results.filter((r) => r.suggestion);
+    const withSuggestion = results.filter((r) => r.suggestion);
+    const unavailable = results.filter((r) => r.correctionUnavailable);
     badge.style.display = "none";
 
-    if (flagged.length === 0) {
+    if (withSuggestion.length === 0 && unavailable.length === 0) {
       renderStatus("誤字は見つかりませんでした");
       setTimeout(() => panel.classList.remove("jev-visible"), 2000);
       return;
     }
 
+    const flaggedCount = withSuggestion.length + unavailable.length;
     const rect = el.getBoundingClientRect();
-    badge.textContent = `⚠ ${flagged.length}件の誤字候補`;
+    badge.textContent = `⚠ ${flaggedCount}件の誤字候補`;
     badge.style.left = `${Math.max(8, rect.right - 140)}px`;
     badge.style.top = `${Math.max(8, rect.top - 24)}px`;
     badge.style.display = "block";
 
     const body = panel.querySelector(".jev-body");
     body.innerHTML = "";
-    for (const r of flagged) {
+    for (const r of withSuggestion) {
       const item = document.createElement("div");
       item.className = "jev-item";
       const reasons = r.suggestion.issues.map((i) => i.reason).join(" / ");
@@ -131,6 +133,15 @@
       item.querySelector(".jev-apply").addEventListener("click", () => {
         applyCorrection(el, r.text, r.suggestion.corrected, item);
       });
+      body.appendChild(item);
+    }
+    for (const r of unavailable) {
+      const item = document.createElement("div");
+      item.className = "jev-item";
+      item.innerHTML = `
+        <div class="jev-original">${escapeHtml(r.text)}</div>
+        <div class="jev-reason">誤字の可能性がありますが、修正案の取得に失敗しました(サーバー側のログを確認してください)</div>
+      `;
       body.appendChild(item);
     }
     panel.classList.add("jev-visible");
