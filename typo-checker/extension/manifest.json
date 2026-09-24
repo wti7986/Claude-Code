@@ -2,13 +2,14 @@
   "manifest_version": 3,
   "name": "Jev Typo Checker",
   "version": "0.1.0",
-  "description": "顧客に送るメッセージの誤字・脱字を即座に検知し、修正案を提示します (Jev + Claude)",
+  "description": "顧客に送るメッセージの誤字・脱字を即座に検知します (Jev)",
   "permissions": ["storage"],
   "host_permissions": [
     "http://localhost/*",
     "http://localhost:3300/*",
     "http://127.0.0.1/*",
-    "http://127.0.0.1:3300/*"
+    "http://127.0.0.1:3300/*",
+    "https://*.onrender.com/*"
   ],
   "background": {
     "service_worker": "background.js",

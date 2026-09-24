@@ -1,6 +1,8 @@
 import "dotenv/config";
 import cors from "cors";
 import express from "express";
+import rateLimit from "express-rate-limit";
+import { requireSharedToken } from "./auth.js";
 import { splitSentences } from "./sentenceSplit.js";
 import { screenSentences } from "./typesafeCheck.js";
 
@@ -9,6 +11,14 @@ app.use(cors());
 app.use(express.json({ limit: "1mb" }));
 
 const THRESHOLD = Number(process.env.TYPO_FLAG_THRESHOLD ?? 0.5);
+
+const checkLimiter = rateLimit({
+  windowMs: 60_000,
+  limit: Number(process.env.RATE_LIMIT_PER_MINUTE ?? 30),
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: "rate limit exceeded, try again shortly" },
+});
 
 interface CheckResultSentence {
   index: number;
@@ -19,7 +29,7 @@ interface CheckResultSentence {
   flagged: boolean;
 }
 
-app.post("/api/check", async (req, res) => {
+app.post("/api/check", requireSharedToken, checkLimiter, async (req, res) => {
   const text = req.body?.text;
   if (typeof text !== "string" || text.trim().length === 0) {
     res.status(400).json({ error: "text is required" });

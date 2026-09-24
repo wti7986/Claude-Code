@@ -1,8 +1,8 @@
 const DEFAULT_BACKEND_URL = "http://localhost:3300";
 
-async function getBackendUrl() {
-  const { backendUrl } = await chrome.storage.sync.get("backendUrl");
-  return backendUrl || DEFAULT_BACKEND_URL;
+async function getSettings() {
+  const { backendUrl, authToken } = await chrome.storage.sync.get(["backendUrl", "authToken"]);
+  return { backendUrl: backendUrl || DEFAULT_BACKEND_URL, authToken: authToken || "" };
 }
 
 chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
@@ -10,10 +10,13 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
 
   (async () => {
     try {
-      const backendUrl = await getBackendUrl();
+      const { backendUrl, authToken } = await getSettings();
+      const headers = { "Content-Type": "application/json" };
+      if (authToken) headers["Authorization"] = `Bearer ${authToken}`;
+
       const res = await fetch(`${backendUrl}/api/check`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers,
         body: JSON.stringify({ text: message.text }),
       });
 

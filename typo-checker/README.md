@@ -21,22 +21,24 @@ server/     Node.js + Express のバックエンド
 cd server
 npm install
 cp .env.example .env
-# .env に TYPESAFE_API_KEY を設定
+# .env に TYPESAFE_API_KEY と APP_SHARED_TOKEN を設定
+# APP_SHARED_TOKEN の生成例: node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
 npm run dev
 ```
 
-デフォルトで `http://localhost:3300` で起動します。
+デフォルトで `http://localhost:3300` で起動します。`/api/check` は `Authorization: Bearer <APP_SHARED_TOKEN>` を要求します（`/healthz` のみ認証不要）。1分あたりのリクエスト数は `RATE_LIMIT_PER_MINUTE`（デフォルト 30）で制限しています。
 
 ### 2. 拡張機能
 
 1. Chrome で `chrome://extensions` を開き、「デベロッパーモード」を有効化
 2. 「パッケージ化されていない拡張機能を読み込む」で `extension/` フォルダを選択
-3. 拡張機能アイコンをクリックし、バックエンドURL（デフォルト `http://localhost:3300`）を確認・保存
+3. 拡張機能アイコンをクリックし、バックエンドURL（デフォルト `http://localhost:3300`）と認証トークン（`.env` の `APP_SHARED_TOKEN` と同じ値）を入力して保存
 
 任意のページのテキストエリア / input / contenteditable な入力欄にフォーカスして入力すると、入力が止まってしばらくして右下にパネルが表示され、誤字候補があれば該当の文と確率が一覧表示されます。
 
 ## 制限・注意点
 
-- **拡張機能は初期状態で `localhost` / `127.0.0.1` のバックエンドにのみアクセスできます。** 別ホストにデプロイする場合は `extension/manifest.json` の `host_permissions` にそのオリジンを追加してください。
+- **拡張機能は初期状態で `localhost` / `127.0.0.1` / `*.onrender.com` のバックエンドにのみアクセスできます。** 別ホストにデプロイする場合は `extension/manifest.json` の `host_permissions` にそのオリジンを追加してください。
+- `APP_SHARED_TOKEN` はTypeSafeのAPIキーそのものではなく、拡張機能とバックエンド間の合言葉です。デプロイ先のURLを知っていても、この値を知らない人はバックエンドを叩けません。ただし拡張機能のコード自体に埋め込む値なので、拡張機能をインストールした全員から見える点は変わりません（TypeSafeの生キーを直接埋め込むより被害範囲を狭める、という位置づけです）。
 - 修正案は表示されません。誤字の可能性がある文をハイライトするだけなので、実際の修正はユーザー自身が行います。
 - `TYPO_FLAG_THRESHOLD`（デフォルト 0.5）で、Jev の確率がどの程度でフラグを立てるかを調整できます。
