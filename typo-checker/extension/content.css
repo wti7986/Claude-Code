@@ -58,40 +58,8 @@
   line-height: 1.5;
 }
 
-#jev-typo-panel .jev-original mark {
-  background: #ffe1a8;
-  border-radius: 2px;
-  padding: 0 1px;
-}
-
-#jev-typo-panel .jev-suggested {
-  color: #1a6e3c;
-  margin-bottom: 4px;
-  line-height: 1.5;
-}
-
 #jev-typo-panel .jev-reason {
   color: #777;
-  font-size: 12px;
-  margin-bottom: 6px;
-}
-
-#jev-typo-panel .jev-apply {
-  font-size: 12px;
-  padding: 4px 10px;
-  border: 1px solid #1a6e3c;
-  color: #1a6e3c;
-  background: #fff;
-  border-radius: 6px;
-  cursor: pointer;
-}
-
-#jev-typo-panel .jev-apply:hover {
-  background: #eaf7ee;
-}
-
-#jev-typo-panel .jev-applied {
-  color: #999;
   font-size: 12px;
 }
 
