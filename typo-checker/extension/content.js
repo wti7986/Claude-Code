@@ -14,6 +14,7 @@
   let activeField = null;
   let debounceTimer = null;
   let requestToken = 0;
+  let isComposing = false;
 
   const panel = document.createElement("div");
   panel.id = "jev-typo-panel";
@@ -41,6 +42,17 @@
       return ["text", "search", "email", "url", "tel"].includes(el.type);
     }
     return el.isContentEditable;
+  }
+
+  // An input/composition event's target can be a node nested deep inside a
+  // contenteditable editor (a span wrapping one word, a mention chip, ...).
+  // Resolve up to the actual editable root so getText/setText always see the
+  // whole message, not just whatever fragment the event happened to target.
+  function getEditableRoot(el) {
+    if (el instanceof HTMLTextAreaElement || el instanceof HTMLInputElement) {
+      return el;
+    }
+    return el.closest('[contenteditable="true"], [contenteditable=""]') ?? el;
   }
 
   function getText(el) {
@@ -128,7 +140,33 @@
     "focusin",
     (e) => {
       if (isEditable(e.target)) {
-        activeField = e.target;
+        activeField = getEditableRoot(e.target);
+      }
+    },
+    true,
+  );
+
+  // IME composition (Japanese romaji -> kana/kanji conversion) fires input
+  // events with unfinished, intermediate text while the user is still
+  // choosing a conversion candidate. Ignore those and only check once the
+  // conversion is committed (compositionend), otherwise the debounce can
+  // fire mid-conversion on garbled partial text.
+  document.addEventListener(
+    "compositionstart",
+    (e) => {
+      if (isEditable(e.target)) isComposing = true;
+    },
+    true,
+  );
+
+  document.addEventListener(
+    "compositionend",
+    (e) => {
+      if (isEditable(e.target)) {
+        isComposing = false;
+        const root = getEditableRoot(e.target);
+        activeField = root;
+        scheduleCheck(root);
       }
     },
     true,
@@ -137,10 +175,11 @@
   document.addEventListener(
     "input",
     (e) => {
-      if (isEditable(e.target)) {
-        activeField = e.target;
-        scheduleCheck(e.target);
-      }
+      if (!isEditable(e.target)) return;
+      if (isComposing || e.isComposing) return;
+      const root = getEditableRoot(e.target);
+      activeField = root;
+      scheduleCheck(root);
     },
     true,
   );
