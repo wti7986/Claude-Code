@@ -35,6 +35,17 @@
   badge.style.display = "none";
   document.documentElement.appendChild(badge);
 
+  // Inside a Shadow DOM (common in design-system web components - e.g. a
+  // <textarea part="input"> wrapped by a custom element), the DOM spec
+  // retargets e.target to the shadow host once the event crosses the
+  // shadow boundary, so a listener on `document` never sees the real
+  // input. composedPath()[0] is the pre-retargeting original target and
+  // survives that boundary for open shadow roots.
+  function realTarget(e) {
+    const path = typeof e.composedPath === "function" ? e.composedPath() : null;
+    return path && path.length > 0 ? path[0] : e.target;
+  }
+
   function isEditable(el) {
     if (!(el instanceof HTMLElement)) return false;
     if (el instanceof HTMLTextAreaElement) return true;
@@ -139,8 +150,9 @@
   document.addEventListener(
     "focusin",
     (e) => {
-      if (isEditable(e.target)) {
-        activeField = getEditableRoot(e.target);
+      const target = realTarget(e);
+      if (isEditable(target)) {
+        activeField = getEditableRoot(target);
       }
     },
     true,
@@ -154,7 +166,7 @@
   document.addEventListener(
     "compositionstart",
     (e) => {
-      if (isEditable(e.target)) isComposing = true;
+      if (isEditable(realTarget(e))) isComposing = true;
     },
     true,
   );
@@ -162,9 +174,10 @@
   document.addEventListener(
     "compositionend",
     (e) => {
-      if (isEditable(e.target)) {
+      const target = realTarget(e);
+      if (isEditable(target)) {
         isComposing = false;
-        const root = getEditableRoot(e.target);
+        const root = getEditableRoot(target);
         activeField = root;
         scheduleCheck(root);
       }
@@ -175,9 +188,10 @@
   document.addEventListener(
     "input",
     (e) => {
-      if (!isEditable(e.target)) return;
+      const target = realTarget(e);
+      if (!isEditable(target)) return;
       if (isComposing || e.isComposing) return;
-      const root = getEditableRoot(e.target);
+      const root = getEditableRoot(target);
       activeField = root;
       scheduleCheck(root);
     },
